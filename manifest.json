@@ -1,0 +1,7 @@
+{
+    "name": "Oneko",
+    "description": "cat follow mouse (real)",
+    "preview": "preview.gif",
+    "main": "oneko.js",
+    "readme": "README.md"
+}
