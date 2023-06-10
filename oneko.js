@@ -135,8 +135,13 @@
       ) {
         mousePosX = remainingTimeLeft - 16;
 
+        // Comfy special case
+        if (Spicetify.Config.current_theme === "Comfy") {
+          mousePosY = progressBarTop - 14;
+        }
+
         // Move the cat to the left of elapsed time if it is too close to the remaining time (Nord theme)
-        if (elapsedTimeRight - remainingTimeLeft < 32) {
+        if (remainingTimeLeft - elapsedTimeRight < 32) {
           mousePosX = elapsedTimeLeft - 16;
         }
       }
