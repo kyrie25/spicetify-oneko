@@ -2,15 +2,17 @@
 
 (function oneko() {
   const nekoEl = document.createElement("div");
-  let nekoPosX = 32;
-  let nekoPosY = 32;
-  let mousePosX = 0;
-  let mousePosY = 0;
-  let frameCount = 0;
-  let idleTime = 0;
-  let idleAnimation = null;
-  let idleAnimationFrame = 0;
-  let forceSleep = false;
+  let nekoPosX = 32,
+    nekoPosY = 32,
+    mousePosX = 0,
+    mousePosY = 0,
+    frameCount = 0,
+    idleTime = 0,
+    idleAnimation = null,
+    idleAnimationFrame = 0,
+    forceSleep = false,
+    blackCat = false;
+
   const nekoSpeed = 10;
   const spriteSets = {
     idle: [[-3, -3]],
@@ -96,6 +98,11 @@
 
       mousePosX = event.clientX;
       mousePosY = event.clientY;
+    };
+
+    nekoEl.onauxclick = () => {
+      blackCat = !blackCat;
+      nekoEl.style.filter = blackCat ? "invert(100%)" : "none";
     };
 
     nekoEl.ondblclick = () => {
