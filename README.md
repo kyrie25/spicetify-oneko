@@ -6,6 +6,10 @@ cat follow mouse real.
 
 ![demo](preview.gif)
 
+cat sleep on progress bar on double click. wake her up by double clicking again.
+
+![demo](double-click.gif)
+
 If you liked this, star the repository so others can see it and **support the original creator 💗**.
 
 ## Installation

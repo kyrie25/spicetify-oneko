@@ -10,6 +10,7 @@
   let idleTime = 0;
   let idleAnimation = null;
   let idleAnimationFrame = 0;
+  let forceSleep = false;
   const nekoSpeed = 10;
   const spriteSets = {
     idle: [[-3, -3]],
@@ -79,8 +80,9 @@
     nekoEl.style.width = "32px";
     nekoEl.style.height = "32px";
     nekoEl.style.position = "fixed";
-    nekoEl.style.pointerEvents = "none";
-    nekoEl.style.backgroundImage = "url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/oneko.gif')";
+    // nekoEl.style.pointerEvents = "none";
+    nekoEl.style.backgroundImage =
+      "url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/oneko.gif')";
     nekoEl.style.imageRendering = "pixelated";
     nekoEl.style.left = `${nekoPosX - 16}px`;
     nekoEl.style.top = `${nekoPosY - 16}px`;
@@ -90,8 +92,54 @@
     document.body.appendChild(nekoEl);
 
     document.onmousemove = (event) => {
+      if (forceSleep) return;
+
       mousePosX = event.clientX;
       mousePosY = event.clientY;
+    };
+
+    nekoEl.ondblclick = () => {
+      forceSleep = !forceSleep;
+      if (!forceSleep) return;
+
+      // Get the far right and top of the progress bar
+      const progressBar = document.querySelector(
+        ".main-nowPlayingBar-center .playback-progressbar"
+      );
+      const progressBarRight = progressBar.getBoundingClientRect().right;
+      const progressBarTop = progressBar.getBoundingClientRect().top;
+
+      // Make the cat sleep on the progress bar
+      mousePosX = progressBarRight - 16;
+      mousePosY = progressBarTop - 8;
+
+      // Get the position of the remaining time
+      const remainingTime = document.querySelector(
+        ".main-playbackBarRemainingTime-container"
+      );
+      const remainingTimeLeft = remainingTime.getBoundingClientRect().left;
+      const remainingTimeBottom = remainingTime.getBoundingClientRect().bottom;
+
+      // Get the position of elapsed time
+      const elapsedTime = document.querySelector(
+        ".playback-bar__progress-time-elapsed"
+      );
+      const elapsedTimeRight = elapsedTime.getBoundingClientRect().right;
+      const elapsedTimeLeft = elapsedTime.getBoundingClientRect().left;
+
+      // If the remaining time is on top right of the progress bar, make the cat sleep to the a little bit to the left of the remaining time
+      // Theme compotibility
+      if (
+        remainingTimeLeft < progressBarRight &&
+        remainingTimeBottom - progressBarTop < 32
+      ) {
+        mousePosX = remainingTimeLeft - 16;
+
+        // Move the cat to the left of elapsed time if it is too close to the remaining time (Nord theme)
+        if (elapsedTimeRight - remainingTimeLeft < 32) {
+          mousePosX = elapsedTimeLeft - 16;
+        }
+      }
     };
 
     window.onekoInterval = setInterval(frame, 100);
@@ -129,10 +177,17 @@
       if (nekoPosY > window.innerHeight - 32) {
         avalibleIdleAnimations.push("scratchWallS");
       }
+      if (forceSleep) {
+        avalibleIdleAnimations = ["sleeping"];
+      }
       idleAnimation =
         avalibleIdleAnimations[
           Math.floor(Math.random() * avalibleIdleAnimations.length)
         ];
+    }
+
+    if (forceSleep) {
+      idleAnimation = "sleeping";
     }
 
     switch (idleAnimation) {
@@ -142,7 +197,7 @@
           break;
         }
         setSprite("sleeping", Math.floor(idleAnimationFrame / 4));
-        if (idleAnimationFrame > 192) {
+        if (idleAnimationFrame > 192 && !forceSleep) {
           resetIdleAnimation();
         }
         break;
@@ -169,7 +224,29 @@
     const diffY = nekoPosY - mousePosY;
     const distance = Math.sqrt(diffX ** 2 + diffY ** 2);
 
-    if (distance < nekoSpeed || distance < 48) {
+    // Cat has to sleep on top of the progress bar
+    if (
+      forceSleep &&
+      Math.abs(diffY) < nekoSpeed &&
+      Math.abs(diffX) < nekoSpeed
+    ) {
+      // Move the cat to the left if it is sleeping too far to the right
+      if (nekoPosX > mousePosX) {
+        nekoPosX -= nekoSpeed;
+        return;
+      }
+
+      // Make the cat sleep exactly on the top of the progress bar
+      nekoPosX = mousePosX;
+      nekoPosY = mousePosY;
+      nekoEl.style.left = `${nekoPosX - 16}px`;
+      nekoEl.style.top = `${nekoPosY - 16}px`;
+
+      idle();
+      return;
+    }
+
+    if ((distance < nekoSpeed || distance < 48) && !forceSleep) {
       idle();
       return;
     }
