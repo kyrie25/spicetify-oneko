@@ -138,7 +138,7 @@
       const elapsedTimeLeft = elapsedTime.getBoundingClientRect().left;
 
       // If the remaining time is on top right of the progress bar, make the cat sleep to the a little bit to the left of the remaining time
-      // Theme compotibility
+      // Theme compatibility
       if (
         remainingTimeLeft < progressBarRight &&
         remainingTimeBottom - progressBarTop < 32
