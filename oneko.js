@@ -100,7 +100,10 @@
 
     nekoEl.ondblclick = () => {
       forceSleep = !forceSleep;
-      if (!forceSleep) return;
+      if (!forceSleep) {
+        resetIdleAnimation();
+        return;
+      }
 
       // Get the far right and top of the progress bar
       const progressBar = document.querySelector(
