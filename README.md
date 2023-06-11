@@ -4,15 +4,15 @@
 
 cat follow mouse real.
 
-![demo](preview.gif)
+![demo](/assets/preview/preview.gif)
 
 cat sleep on progress bar on double click. wake her up by double clicking again.
 
-![demo](double-click.gif)
+![demo](/assets/preview/double-click.gif)
 
 right-click for kuroneko. kuroneko will come back in the next session if you kept her in the previous session.
 
-![demo](kuroneko.gif)
+![demo](/assets/preview/kuroneko.gif)
 
 If you liked this, star the repository so others can see it and **support the original creator 💗**.
 

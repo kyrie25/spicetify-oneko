@@ -11,83 +11,102 @@
     idleAnimation = null,
     idleAnimationFrame = 0,
     forceSleep = false,
-    blackCat = false;
+    kuroNeko = false,
+    variant = "classic";
 
-  const nekoSpeed = 10;
-  const spriteSets = {
-    idle: [[-3, -3]],
-    alert: [[-7, -3]],
-    scratchSelf: [
-      [-5, 0],
-      [-6, 0],
-      [-7, 0],
+  function parseLocalStorage(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem(`oneko:${key}`));
+      console.log(key, value);
+      return typeof value === typeof fallback ? value : fallback;
+    } catch (e) {
+      console.error(e);
+      return fallback;
+    }
+  }
+
+  const nekoSpeed = 10,
+    variants = [
+      ["classic", "Classic"],
+      ["dog", "Dog"],
     ],
-    scratchWallN: [
-      [0, 0],
-      [0, -1],
-    ],
-    scratchWallS: [
-      [-7, -1],
-      [-6, -2],
-    ],
-    scratchWallE: [
-      [-2, -2],
-      [-2, -3],
-    ],
-    scratchWallW: [
-      [-4, 0],
-      [-4, -1],
-    ],
-    tired: [[-3, -2]],
-    sleeping: [
-      [-2, 0],
-      [-2, -1],
-    ],
-    N: [
-      [-1, -2],
-      [-1, -3],
-    ],
-    NE: [
-      [0, -2],
-      [0, -3],
-    ],
-    E: [
-      [-3, 0],
-      [-3, -1],
-    ],
-    SE: [
-      [-5, -1],
-      [-5, -2],
-    ],
-    S: [
-      [-6, -3],
-      [-7, -2],
-    ],
-    SW: [
-      [-5, -3],
-      [-6, -1],
-    ],
-    W: [
-      [-4, -2],
-      [-4, -3],
-    ],
-    NW: [
-      [-1, 0],
-      [-1, -1],
-    ],
-  };
+    spriteSets = {
+      idle: [[-3, -3]],
+      alert: [[-7, -3]],
+      scratchSelf: [
+        [-5, 0],
+        [-6, 0],
+        [-7, 0],
+      ],
+      scratchWallN: [
+        [0, 0],
+        [0, -1],
+      ],
+      scratchWallS: [
+        [-7, -1],
+        [-6, -2],
+      ],
+      scratchWallE: [
+        [-2, -2],
+        [-2, -3],
+      ],
+      scratchWallW: [
+        [-4, 0],
+        [-4, -1],
+      ],
+      tired: [[-3, -2]],
+      sleeping: [
+        [-2, 0],
+        [-2, -1],
+      ],
+      N: [
+        [-1, -2],
+        [-1, -3],
+      ],
+      NE: [
+        [0, -2],
+        [0, -3],
+      ],
+      E: [
+        [-3, 0],
+        [-3, -1],
+      ],
+      SE: [
+        [-5, -1],
+        [-5, -2],
+      ],
+      S: [
+        [-6, -3],
+        [-7, -2],
+      ],
+      SW: [
+        [-5, -3],
+        [-6, -1],
+      ],
+      W: [
+        [-4, -2],
+        [-4, -3],
+      ],
+      NW: [
+        [-1, 0],
+        [-1, -1],
+      ],
+    };
 
   function create() {
+    variant = parseLocalStorage("variant", "classic");
+    kuroNeko = parseLocalStorage("kuroneko", false);
+
     nekoEl.id = "oneko";
     nekoEl.style.width = "32px";
     nekoEl.style.height = "32px";
     nekoEl.style.position = "fixed";
     // nekoEl.style.pointerEvents = "none";
-    nekoEl.style.backgroundImage =
-      "url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/oneko.gif')";
+    nekoEl.style.backgroundImage = `url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/assets/oneko/oneko-${variant}.gif')`;
     nekoEl.style.imageRendering = "pixelated";
     nekoEl.style.left = `${nekoPosX - 16}px`;
     nekoEl.style.top = `${nekoPosY - 16}px`;
+    nekoEl.style.filter = kuroNeko ? "invert(100%)" : "none";
     // Still wondering whether or not to cover the popup modal (which has z-index 100 or 9999)
     nekoEl.style.zIndex = "999";
 
@@ -100,9 +119,11 @@
       mousePosY = event.clientY;
     };
 
-    nekoEl.onauxclick = () => {
-      blackCat = !blackCat;
-      nekoEl.style.filter = blackCat ? "invert(100%)" : "none";
+    nekoEl.oncontextmenu = (e) => {
+      e.preventDefault();
+      kuroNeko = !kuroNeko;
+      localStorage.setItem("oneko:kuroneko", kuroNeko);
+      nekoEl.style.filter = kuroNeko ? "invert(100%)" : "none";
     };
 
     nekoEl.ondblclick = () => {
@@ -294,4 +315,83 @@
   }
 
   create();
+
+  function setVariant(arr) {
+    console.log(arr);
+
+    variant = arr[0];
+    localStorage.setItem("oneko:variant", `"${variant}"`);
+    nekoEl.style.backgroundImage = `url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/assets/oneko/oneko-${variant}.gif')`;
+  }
+
+  // Popup modal to choose variant
+  function pickerModal() {
+    const container = document.createElement("div");
+    container.className = "oneko-variant-container";
+
+    const style = document.createElement("style");
+    // Each variant is a 64x64 sprite
+    style.innerHTML = `
+      .oneko-variant-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+      }
+      .oneko-variant-button {
+        width: 64px;
+        height: 64px;
+        margin: 8px;
+        cursor: pointer;
+        background-size: 800%;
+        border-radius: 25%;
+      }
+      .oneko-variant-button:hover, .oneko-variant-button-selected {
+        background-position: ${-2 * 32}px ${-2 * 32}px;
+        background-color: var(--spice-main-elevated);
+      }
+    `;
+    container.appendChild(style);
+
+    function variantButton(variantEnum) {
+      const div = document.createElement("div");
+      div.className = "oneko-variant-button";
+      div.id = variantEnum[0];
+      div.style.backgroundImage = `url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/assets/oneko/oneko-${variantEnum[0]}.gif')`;
+      div.onclick = () => {
+        setVariant(variantEnum);
+        const selected = document.querySelector(
+          ".oneko-variant-button-selected"
+        );
+        if (selected) {
+          selected.classList.remove("oneko-variant-button-selected");
+        }
+        div.className += " oneko-variant-button-selected";
+      };
+      if (variantEnum[0] === variant) {
+        div.className += " oneko-variant-button-selected";
+      }
+
+      Spicetify.Tippy(div, {
+        ...Spicetify.TippyProps,
+        content: variantEnum[1],
+      });
+
+      return div;
+    }
+
+    for (const variant of variants) {
+      container.appendChild(variantButton(variant));
+    }
+
+    return container;
+  }
+
+  Spicetify.Mousetrap.bind("o n e k o", () => {
+    Spicetify.PopupModal.display({
+      title: "Choose your neko",
+      // Render the modal new every time it is opened
+      content: pickerModal(),
+    });
+  });
 })();
