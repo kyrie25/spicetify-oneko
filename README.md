@@ -16,7 +16,7 @@ right-click for kuroneko. kuroneko will come back if you kept her in the previou
 
 type `oneko` anywhere in the client (except a text input) to open the neko picker. if you want more variants, feel free to make a pull request with your own neko gifs.
 
-(i had to painstakingly made them pls love the cats)
+(i had to painstakingly compile them pls love the cats)
 
 ![demo](/assets/preview/picker.gif)
 
