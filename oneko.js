@@ -202,8 +202,12 @@
     window.onekoInterval = setInterval(frame, 100);
   }
 
+  function getSprite(name, frame) {
+    return spriteSets[name][frame % spriteSets[name].length];
+  }
+
   function setSprite(name, frame) {
-    const sprite = spriteSets[name][frame % spriteSets[name].length];
+    const sprite = getSprite(name, frame);
     nekoEl.style.backgroundPosition = `${sprite[0] * 32}px ${sprite[1] * 32}px`;
   }
 
@@ -331,6 +335,28 @@
 
   create();
 
+  function createRandomKeyGenerator() {
+    // Get keys with 2 or more sprites
+    const keys = Object.keys(spriteSets).filter(
+      (key) => spriteSets[key].length > 1
+    );
+    const usedKeys = new Set();
+
+    return function () {
+      let unusedKeys = keys.filter((key) => !usedKeys.has(key));
+      if (unusedKeys.length === 0) {
+        usedKeys.clear();
+        unusedKeys = keys;
+      }
+      const index = Math.floor(Math.random() * unusedKeys.length);
+      const key = unusedKeys[index];
+      usedKeys.add(key);
+      return key;
+    };
+  }
+
+  const randomKey = createRandomKeyGenerator();
+
   function setVariant(arr) {
     console.log(arr);
 
@@ -360,20 +386,32 @@
         cursor: pointer;
         background-size: 800%;
         border-radius: 25%;
+        transition: background-color 0.2s ease-in-out;
+        background-position: var(--idle-x) var(--idle-y);
       }
       .oneko-variant-button:hover, .oneko-variant-button-selected {
-        background-position: ${-2 * 32}px ${-2 * 32}px;
+        background-position: var(--active-x) var(--active-y);
         background-color: var(--spice-main-elevated);
       }
     `;
     container.appendChild(style);
 
+    const key = randomKey();
+    const idle = getSprite(key, 0);
+    const active = getSprite(key, 1);
+
     function variantButton(variantEnum) {
       const div = document.createElement("div");
+
       div.className = "oneko-variant-button";
       div.id = variantEnum[0];
       div.style.backgroundImage = `url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/assets/oneko/oneko-${variantEnum[0]}.gif')`;
       div.style.imageRendering = "pixelated";
+      div.style.setProperty("--idle-x", `${idle[0] * 64}px`);
+      div.style.setProperty("--idle-y", `${idle[1] * 64}px`);
+      div.style.setProperty("--active-x", `${active[0] * 64}px`);
+      div.style.setProperty("--active-y", `${active[1] * 64}px`);
+
       div.onclick = () => {
         setVariant(variantEnum);
         const selected = document.querySelector(
