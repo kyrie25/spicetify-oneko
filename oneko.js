@@ -364,6 +364,7 @@
       div.className = "oneko-variant-button";
       div.id = variantEnum[0];
       div.style.backgroundImage = `url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/assets/oneko/oneko-${variantEnum[0]}.gif')`;
+      div.style.imageRendering = "pixelated";
       div.onclick = () => {
         setVariant(variantEnum);
         const selected = document.querySelector(
