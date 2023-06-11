@@ -29,6 +29,7 @@
     variants = [
       ["classic", "Classic"],
       ["dog", "Dog"],
+      ["tora", "Tora"],
     ],
     spriteSets = {
       idle: [[-3, -3]],
