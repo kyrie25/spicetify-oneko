@@ -30,6 +30,7 @@
       ["classic", "Classic"],
       ["dog", "Dog"],
       ["tora", "Tora"],
+      ["fluff", "Fluff"],
     ],
     spriteSets = {
       idle: [[-3, -3]],
@@ -97,6 +98,10 @@
   function create() {
     variant = parseLocalStorage("variant", "classic");
     kuroNeko = parseLocalStorage("kuroneko", false);
+
+    if (!variants.some((v) => v[0] === variant)) {
+      variant = "classic";
+    }
 
     nekoEl.id = "oneko";
     nekoEl.style.width = "32px";
