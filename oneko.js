@@ -118,12 +118,27 @@
 
     document.body.appendChild(nekoEl);
 
-    document.onmousemove = (event) => {
+    window.addEventListener("mousemove", (e) => {
       if (forceSleep) return;
 
-      mousePosX = event.clientX;
-      mousePosY = event.clientY;
-    };
+      mousePosX = e.clientX;
+      mousePosY = e.clientY;
+    });
+
+    window.addEventListener("resize", () => {
+      if (!forceSleep) return;
+      // If neko is outside the window and is forced to sleep, wake her up
+      if (
+        nekoPosX - window.innerWidth > 32 ||
+        nekoPosY - window.innerHeight > 32 ||
+        // Also when she is about to go outside the window
+        mousePosX - window.innerWidth > 32 ||
+        mousePosY - window.innerHeight > 32
+      ) {
+        forceSleep = false;
+        resetIdleAnimation();
+      }
+    });
 
     nekoEl.oncontextmenu = (e) => {
       e.preventDefault();
@@ -272,12 +287,6 @@
       Math.abs(diffY) < nekoSpeed &&
       Math.abs(diffX) < nekoSpeed
     ) {
-      // Move the cat to the left if it is sleeping too far to the right
-      if (nekoPosX > mousePosX) {
-        nekoPosX -= nekoSpeed;
-        return;
-      }
-
       // Make the cat sleep exactly on the top of the progress bar
       nekoPosX = mousePosX;
       nekoPosY = mousePosY;
