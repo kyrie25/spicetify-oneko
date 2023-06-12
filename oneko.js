@@ -112,7 +112,6 @@
     nekoEl.style.height = "32px";
     nekoEl.style.position = "fixed";
     // nekoEl.style.pointerEvents = "none";
-    nekoEl.style.cursor = "grab";
     nekoEl.style.backgroundImage = `url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/assets/oneko/oneko-${variant}.gif')`;
     nekoEl.style.imageRendering = "pixelated";
     nekoEl.style.left = `${nekoPosX - 16}px`;
@@ -148,7 +147,6 @@
     // Handle dragging of the cat
     nekoEl.addEventListener("mousedown", (e) => {
       if (e.button !== 0) return;
-      nekoEl.style.cursor = "grabbing";
       grabbing = true;
       let startX = e.clientX;
       let startY = e.clientY;
@@ -193,8 +191,7 @@
 
       const mouseup = () => {
         grabbing = false;
-        nekoEl.style.pointerEvents = "auto";
-        nekoEl.style.cursor = "grab";
+        resetIdleAnimation();
         window.removeEventListener("mousemove", mousemove);
         window.removeEventListener("mouseup", mouseup);
       };
