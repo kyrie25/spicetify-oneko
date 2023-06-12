@@ -93,7 +93,9 @@
         [-1, 0],
         [-1, -1],
       ],
-    };
+    }, // Get keys with 2 or more sprites
+    keys = Object.keys(spriteSets).filter((key) => spriteSets[key].length > 1),
+    usedKeys = new Set();
 
   function create() {
     variant = parseLocalStorage("variant", "classic");
@@ -335,27 +337,17 @@
 
   create();
 
-  function createRandomKeyGenerator() {
-    // Get keys with 2 or more sprites
-    const keys = Object.keys(spriteSets).filter(
-      (key) => spriteSets[key].length > 1
-    );
-    const usedKeys = new Set();
-
-    return function () {
-      let unusedKeys = keys.filter((key) => !usedKeys.has(key));
-      if (unusedKeys.length === 0) {
-        usedKeys.clear();
-        unusedKeys = keys;
-      }
-      const index = Math.floor(Math.random() * unusedKeys.length);
-      const key = unusedKeys[index];
-      usedKeys.add(key);
-      return key;
-    };
+  function getRandomSprite() {
+    let unusedKeys = keys.filter((key) => !usedKeys.has(key));
+    if (unusedKeys.length === 0) {
+      usedKeys.clear();
+      unusedKeys = keys;
+    }
+    const index = Math.floor(Math.random() * unusedKeys.length);
+    const key = unusedKeys[index];
+    usedKeys.add(key);
+    return [getSprite(key, 0), getSprite(key, 1)];
   }
-
-  const randomKey = createRandomKeyGenerator();
 
   function setVariant(arr) {
     console.log(arr);
@@ -388,17 +380,18 @@
         border-radius: 25%;
         transition: background-color 0.2s ease-in-out;
         background-position: var(--idle-x) var(--idle-y);
+        image-rendering: pixelated;
       }
       .oneko-variant-button:hover, .oneko-variant-button-selected {
-        background-position: var(--active-x) var(--active-y);
         background-color: var(--spice-main-elevated);
+      }
+      .oneko-variant-button:hover {
+        background-position: var(--active-x) var(--active-y);
       }
     `;
     container.appendChild(style);
 
-    const key = randomKey();
-    const idle = getSprite(key, 0);
-    const active = getSprite(key, 1);
+    const [idle, active] = getRandomSprite();
 
     function variantButton(variantEnum) {
       const div = document.createElement("div");
@@ -406,7 +399,6 @@
       div.className = "oneko-variant-button";
       div.id = variantEnum[0];
       div.style.backgroundImage = `url('https://raw.githubusercontent.com/kyrie25/spicetify-oneko/main/assets/oneko/oneko-${variantEnum[0]}.gif')`;
-      div.style.imageRendering = "pixelated";
       div.style.setProperty("--idle-x", `${idle[0] * 64}px`);
       div.style.setProperty("--idle-y", `${idle[1] * 64}px`);
       div.style.setProperty("--active-x", `${active[0] * 64}px`);
@@ -414,14 +406,12 @@
 
       div.onclick = () => {
         setVariant(variantEnum);
-        const selected = document.querySelector(
-          ".oneko-variant-button-selected"
-        );
-        if (selected) {
-          selected.classList.remove("oneko-variant-button-selected");
-        }
+        document
+          .querySelector(".oneko-variant-button-selected")
+          ?.classList.remove("oneko-variant-button-selected");
         div.className += " oneko-variant-button-selected";
       };
+
       if (variantEnum[0] === variant) {
         div.className += " oneko-variant-button-selected";
       }
