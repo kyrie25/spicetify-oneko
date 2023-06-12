@@ -13,7 +13,6 @@
     forceSleep = false,
     grabbing = false,
     grabStop = true,
-    grabInterval = null,
     kuroNeko = false,
     variant = "classic";
 
@@ -100,11 +99,6 @@
     keys = Object.keys(spriteSets).filter((key) => spriteSets[key].length > 1),
     usedKeys = new Set();
 
-  // Written as a function so it can be cleared in interval
-  function waitForGrabStop() {
-    grabStop = true;
-  }
-
   function create() {
     variant = parseLocalStorage("variant", "classic");
     kuroNeko = parseLocalStorage("kuroneko", false);
@@ -160,6 +154,7 @@
       let startY = e.clientY;
       let startNekoX = nekoPosX;
       let startNekoY = nekoPosY;
+      let grabInterval;
 
       const mousemove = (e) => {
         const deltaX = e.clientX - startX;
@@ -182,7 +177,7 @@
           grabStop = false;
           clearTimeout(grabInterval);
           grabInterval = setTimeout(() => {
-            waitForGrabStop();
+            grabStop = true;
             startX = e.clientX;
             startY = e.clientY;
             startNekoX = nekoPosX;
@@ -306,9 +301,6 @@
       if (nekoPosY > window.innerHeight - 32) {
         avalibleIdleAnimations.push("scratchWallS");
       }
-      if (forceSleep) {
-        avalibleIdleAnimations = ["sleeping"];
-      }
       idleAnimation =
         avalibleIdleAnimations[
           Math.floor(Math.random() * avalibleIdleAnimations.length)
@@ -316,6 +308,7 @@
     }
 
     if (forceSleep) {
+      avalibleIdleAnimations = ["sleeping"];
       idleAnimation = "sleeping";
     }
 
