@@ -13,6 +13,7 @@
     forceSleep = false,
     grabbing = false,
     grabStop = true,
+    nudge = false,
     kuroNeko = false,
     variant = "classic";
 
@@ -169,13 +170,15 @@
 
         if (
           grabStop ||
-          Math.abs(e.clientX - startX) > 5 ||
-          Math.abs(e.clientY - startY) > 5
+          absDeltaX > 10 ||
+          absDeltaY > 10 ||
+          Math.sqrt(deltaX ** 2 + deltaY ** 2) > 10
         ) {
           grabStop = false;
           clearTimeout(grabInterval);
           grabInterval = setTimeout(() => {
             grabStop = true;
+            nudge = false;
             startX = e.clientX;
             startY = e.clientY;
             startNekoX = nekoPosX;
@@ -191,6 +194,7 @@
 
       const mouseup = () => {
         grabbing = false;
+        nudge = true;
         resetIdleAnimation();
         window.removeEventListener("mousemove", mousemove);
         window.removeEventListener("mouseup", mouseup);
@@ -209,6 +213,7 @@
 
     nekoEl.addEventListener("dblclick", () => {
       forceSleep = !forceSleep;
+      nudge = false;
       if (!forceSleep) {
         resetIdleAnimation();
         return;
@@ -311,6 +316,13 @@
 
     switch (idleAnimation) {
       case "sleeping":
+        if (idleAnimationFrame < 8 && nudge && forceSleep) {
+          setSprite("idle", 0);
+          break;
+        } else if (nudge) {
+          nudge = false;
+          resetIdleAnimation();
+        }
         if (idleAnimationFrame < 8) {
           setSprite("tired", 0);
           break;
