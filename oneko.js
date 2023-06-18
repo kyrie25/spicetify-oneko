@@ -219,6 +219,14 @@
         return;
       }
 
+      // If Full App Display is on, sleep on its progress bar instead
+      const fullAppDisplay = document.getElementById("fad-progress");
+      if (fullAppDisplay) {
+        mousePosX = fullAppDisplay.getBoundingClientRect().right - 16;
+        mousePosY = fullAppDisplay.getBoundingClientRect().top - 8;
+        return;
+      }
+
       // Get the far right and top of the progress bar
       const progressBar = document.querySelector(
         ".main-nowPlayingBar-center .playback-progressbar"
