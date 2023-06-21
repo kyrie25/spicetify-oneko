@@ -34,6 +34,7 @@
       ["dog", "Dog"],
       ["tora", "Tora"],
       ["fluff", "Fluff"],
+      ["vaporwave", "Vaporwave"],
     ],
     spriteSets = {
       idle: [[-3, -3]],
@@ -223,7 +224,7 @@
       const fullAppDisplay = document.getElementById("fad-progress");
       if (fullAppDisplay) {
         mousePosX = fullAppDisplay.getBoundingClientRect().right - 16;
-        mousePosY = fullAppDisplay.getBoundingClientRect().top - 8;
+        mousePosY = fullAppDisplay.getBoundingClientRect().top - 12;
         return;
       }
 
