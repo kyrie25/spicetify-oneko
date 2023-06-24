@@ -234,6 +234,7 @@
       );
       const progressBarRight = progressBar.getBoundingClientRect().right;
       const progressBarTop = progressBar.getBoundingClientRect().top;
+      const progressBarBottom = progressBar.getBoundingClientRect().bottom;
 
       // Make the cat sleep on the progress bar
       mousePosX = progressBarRight - 16;
@@ -245,6 +246,7 @@
       );
       const remainingTimeLeft = remainingTime.getBoundingClientRect().left;
       const remainingTimeBottom = remainingTime.getBoundingClientRect().bottom;
+      const remainingTimeTop = remainingTime.getBoundingClientRect().top;
 
       // Get the position of elapsed time
       const elapsedTime = document.querySelector(
@@ -257,7 +259,8 @@
       // Theme compatibility
       if (
         remainingTimeLeft < progressBarRight &&
-        remainingTimeBottom - progressBarTop < 32
+        remainingTimeTop < progressBarBottom &&
+        progressBarTop - remainingTimeBottom < 32
       ) {
         mousePosX = remainingTimeLeft - 16;
 
