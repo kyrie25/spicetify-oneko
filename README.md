@@ -4,6 +4,8 @@
 
 cat follow mouse real.
 
+oneko with additional features made for spicetify.
+
 ![demo](/assets/preview/preview.gif)
 
 play with her by dragging her around.
