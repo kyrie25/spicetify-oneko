@@ -119,8 +119,8 @@
     nekoEl.style.left = `${nekoPosX - 16}px`;
     nekoEl.style.top = `${nekoPosY - 16}px`;
     nekoEl.style.filter = kuroNeko ? "invert(100%)" : "none";
-    // Still wondering whether or not to cover the popup modal (which has z-index 100 or 9999)
-    nekoEl.style.zIndex = "999";
+    // Render Oneko below Spicetify's Popup Modal
+    nekoEl.style.zIndex = "99";
 
     document.body.appendChild(nekoEl);
 
