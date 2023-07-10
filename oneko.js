@@ -33,8 +33,8 @@
       ["classic", "Classic"],
       ["dog", "Dog"],
       ["tora", "Tora"],
-      ["fluff", "Fluff"],
-      ["vaporwave", "Vaporwave"],
+      ["maia", "Maia (maia.crimew.gay)"],
+      ["vaporwave", "Vaporwave (nya.rest)"],
     ],
     spriteSets = {
       idle: [[-3, -3]],
@@ -495,11 +495,11 @@
         document
           .querySelector(".oneko-variant-button-selected")
           ?.classList.remove("oneko-variant-button-selected");
-        div.className += " oneko-variant-button-selected";
+        div.classList.add("oneko-variant-button-selected");
       };
 
       if (variantEnum[0] === variant) {
-        div.className += " oneko-variant-button-selected";
+        div.classList.add("oneko-variant-button-selected");
       }
 
       Spicetify.Tippy(div, {
