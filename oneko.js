@@ -1,6 +1,6 @@
 // oneko.js: https://github.com/adryd325/oneko.js
 
-(function oneko() {
+(async function oneko() {
   const nekoEl = document.createElement("div");
   let nekoPosX = 32,
     nekoPosY = 32,
@@ -517,6 +517,9 @@
     return container;
   }
 
+  if (!Spicetify.Mousetrap) {
+    await new Promise((r) => setTimeout(r, 100));
+  }
   Spicetify.Mousetrap.bind("o n e k o", () => {
     Spicetify.PopupModal.display({
       title: "Choose your neko",
