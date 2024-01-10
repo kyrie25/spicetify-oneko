@@ -517,7 +517,7 @@
     return container;
   }
 
-  if (!Spicetify.Mousetrap) {
+  while (!Spicetify.Mousetrap) {
     await new Promise((r) => setTimeout(r, 100));
   }
   Spicetify.Mousetrap.bind("o n e k o", () => {
