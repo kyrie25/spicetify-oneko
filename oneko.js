@@ -20,7 +20,6 @@
   function parseLocalStorage(key, fallback) {
     try {
       const value = JSON.parse(localStorage.getItem(`oneko:${key}`));
-      console.log(key, value);
       return typeof value === typeof fallback ? value : fallback;
     } catch (e) {
       console.error(e);
@@ -101,6 +100,61 @@
     keys = Object.keys(spriteSets).filter((key) => spriteSets[key].length > 1),
     usedKeys = new Set();
 
+  function sleep() {
+    forceSleep = !forceSleep;
+    nudge = false;
+    localStorage.setItem("oneko:forceSleep", forceSleep);
+    if (!forceSleep) {
+      resetIdleAnimation();
+      return;
+    }
+
+    // If Full App Display is on, sleep on its progress bar instead
+    const fullAppDisplay = document.getElementById("fad-progress");
+    if (fullAppDisplay) {
+      mousePosX = fullAppDisplay.getBoundingClientRect().right - 16;
+      mousePosY = fullAppDisplay.getBoundingClientRect().top - 12;
+      return;
+    }
+
+    // Get the far right and top of the progress bar
+    const progressBar = document.querySelector(".main-nowPlayingBar-center .playback-progressbar");
+    const progressBarRight = progressBar.getBoundingClientRect().right;
+    const progressBarTop = progressBar.getBoundingClientRect().top;
+    const progressBarBottom = progressBar.getBoundingClientRect().bottom;
+
+    // Make the cat sleep on the progress bar
+    mousePosX = progressBarRight - 16;
+    mousePosY = progressBarTop - 8;
+
+    // Get the position of the remaining time
+    const remainingTime = document.querySelector(".main-playbackBarRemainingTime-container");
+    const remainingTimeLeft = remainingTime.getBoundingClientRect().left;
+    const remainingTimeBottom = remainingTime.getBoundingClientRect().bottom;
+    const remainingTimeTop = remainingTime.getBoundingClientRect().top;
+
+    // Get the position of elapsed time
+    const elapsedTime = document.querySelector(".playback-bar__progress-time-elapsed");
+    const elapsedTimeRight = elapsedTime.getBoundingClientRect().right;
+    const elapsedTimeLeft = elapsedTime.getBoundingClientRect().left;
+
+    // If the remaining time is on top right of the progress bar, make the cat sleep to the a little bit to the left of the remaining time
+    // Theme compatibility
+    if (remainingTimeLeft < progressBarRight && remainingTimeTop < progressBarBottom && progressBarTop - remainingTimeBottom < 32) {
+      mousePosX = remainingTimeLeft - 16;
+
+      // Comfy special case
+      if (Spicetify.Config.current_theme === "Comfy") {
+        mousePosY = progressBarTop - 14;
+      }
+
+      // Move the cat to the left of elapsed time if it is too close to the remaining time (Nord theme)
+      if (remainingTimeLeft - elapsedTimeRight < 32) {
+        mousePosX = elapsedTimeLeft - 16;
+      }
+    }
+  }
+
   function create() {
     variant = parseLocalStorage("variant", "classic");
     kuroNeko = parseLocalStorage("kuroneko", false);
@@ -169,12 +223,7 @@
           setSprite(deltaY > 0 ? "scratchWallN" : "scratchWallS", frameCount);
         }
 
-        if (
-          grabStop ||
-          absDeltaX > 10 ||
-          absDeltaY > 10 ||
-          Math.sqrt(deltaX ** 2 + deltaY ** 2) > 10
-        ) {
+        if (grabStop || absDeltaX > 10 || absDeltaY > 10 || Math.sqrt(deltaX ** 2 + deltaY ** 2) > 10) {
           grabStop = false;
           clearTimeout(grabInterval);
           grabInterval = setTimeout(() => {
@@ -212,69 +261,7 @@
       nekoEl.style.filter = kuroNeko ? "invert(100%)" : "none";
     });
 
-    nekoEl.addEventListener("dblclick", () => {
-      forceSleep = !forceSleep;
-      nudge = false;
-      if (!forceSleep) {
-        resetIdleAnimation();
-        return;
-      }
-
-      // If Full App Display is on, sleep on its progress bar instead
-      const fullAppDisplay = document.getElementById("fad-progress");
-      if (fullAppDisplay) {
-        mousePosX = fullAppDisplay.getBoundingClientRect().right - 16;
-        mousePosY = fullAppDisplay.getBoundingClientRect().top - 12;
-        return;
-      }
-
-      // Get the far right and top of the progress bar
-      const progressBar = document.querySelector(
-        ".main-nowPlayingBar-center .playback-progressbar"
-      );
-      const progressBarRight = progressBar.getBoundingClientRect().right;
-      const progressBarTop = progressBar.getBoundingClientRect().top;
-      const progressBarBottom = progressBar.getBoundingClientRect().bottom;
-
-      // Make the cat sleep on the progress bar
-      mousePosX = progressBarRight - 16;
-      mousePosY = progressBarTop - 8;
-
-      // Get the position of the remaining time
-      const remainingTime = document.querySelector(
-        ".main-playbackBarRemainingTime-container"
-      );
-      const remainingTimeLeft = remainingTime.getBoundingClientRect().left;
-      const remainingTimeBottom = remainingTime.getBoundingClientRect().bottom;
-      const remainingTimeTop = remainingTime.getBoundingClientRect().top;
-
-      // Get the position of elapsed time
-      const elapsedTime = document.querySelector(
-        ".playback-bar__progress-time-elapsed"
-      );
-      const elapsedTimeRight = elapsedTime.getBoundingClientRect().right;
-      const elapsedTimeLeft = elapsedTime.getBoundingClientRect().left;
-
-      // If the remaining time is on top right of the progress bar, make the cat sleep to the a little bit to the left of the remaining time
-      // Theme compatibility
-      if (
-        remainingTimeLeft < progressBarRight &&
-        remainingTimeTop < progressBarBottom &&
-        progressBarTop - remainingTimeBottom < 32
-      ) {
-        mousePosX = remainingTimeLeft - 16;
-
-        // Comfy special case
-        if (Spicetify.Config.current_theme === "Comfy") {
-          mousePosY = progressBarTop - 14;
-        }
-
-        // Move the cat to the left of elapsed time if it is too close to the remaining time (Nord theme)
-        if (remainingTimeLeft - elapsedTimeRight < 32) {
-          mousePosX = elapsedTimeLeft - 16;
-        }
-      }
-    });
+    nekoEl.addEventListener("dblclick", sleep);
 
     window.onekoInterval = setInterval(frame, 100);
   }
@@ -297,11 +284,7 @@
     idleTime += 1;
 
     // every ~ 20 seconds
-    if (
-      idleTime > 10 &&
-      Math.floor(Math.random() * 200) == 0 &&
-      idleAnimation == null
-    ) {
+    if (idleTime > 10 && Math.floor(Math.random() * 200) == 0 && idleAnimation == null) {
       let avalibleIdleAnimations = ["sleeping", "scratchSelf"];
       if (nekoPosX < 32) {
         avalibleIdleAnimations.push("scratchWallW");
@@ -315,10 +298,7 @@
       if (nekoPosY > window.innerHeight - 32) {
         avalibleIdleAnimations.push("scratchWallS");
       }
-      idleAnimation =
-        avalibleIdleAnimations[
-          Math.floor(Math.random() * avalibleIdleAnimations.length)
-        ];
+      idleAnimation = avalibleIdleAnimations[Math.floor(Math.random() * avalibleIdleAnimations.length)];
     }
 
     if (forceSleep) {
@@ -374,11 +354,7 @@
     const distance = Math.sqrt(diffX ** 2 + diffY ** 2);
 
     // Cat has to sleep on top of the progress bar
-    if (
-      forceSleep &&
-      Math.abs(diffY) < nekoSpeed &&
-      Math.abs(diffX) < nekoSpeed
-    ) {
+    if (forceSleep && Math.abs(diffY) < nekoSpeed && Math.abs(diffX) < nekoSpeed) {
       // Make the cat sleep exactly on the top of the progress bar
       nekoPosX = mousePosX;
       nekoPosY = mousePosY;
@@ -492,9 +468,7 @@
 
       div.onclick = () => {
         setVariant(variantEnum);
-        document
-          .querySelector(".oneko-variant-button-selected")
-          ?.classList.remove("oneko-variant-button-selected");
+        document.querySelector(".oneko-variant-button-selected")?.classList.remove("oneko-variant-button-selected");
         div.classList.add("oneko-variant-button-selected");
       };
 
@@ -517,14 +491,23 @@
     return container;
   }
 
-  while (!Spicetify.Mousetrap) {
-    await new Promise((r) => setTimeout(r, 100));
-  }
-  Spicetify.Mousetrap.bind("o n e k o", () => {
-    Spicetify.PopupModal.display({
-      title: "Choose your neko",
-      // Render the modal new every time it is opened
-      content: pickerModal(),
+  (async () => {
+    while (!Spicetify.Mousetrap) {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    Spicetify.Mousetrap.bind("o n e k o", () => {
+      Spicetify.PopupModal.display({
+        title: "Choose your neko",
+        // Render the modal new every time it is opened
+        content: pickerModal(),
+      });
     });
-  });
+  })();
+
+  if (parseLocalStorage("forceSleep", false)) {
+    while (!document.querySelector(".main-nowPlayingBar-center .playback-progressbar")) {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    sleep();
+  }
 })();
