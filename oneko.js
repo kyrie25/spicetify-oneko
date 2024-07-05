@@ -186,17 +186,9 @@
     });
 
     window.addEventListener("resize", () => {
-      if (!forceSleep) return;
-      // If neko is outside the window and is forced to sleep, wake her up
-      if (
-        nekoPosX - window.innerWidth > 32 ||
-        nekoPosY - window.innerHeight > 32 ||
-        // Also when she is about to go outside the window
-        mousePosX - window.innerWidth > 32 ||
-        mousePosY - window.innerHeight > 32
-      ) {
+      if (forceSleep) {
         forceSleep = false;
-        resetIdleAnimation();
+        sleep();
       }
     });
 
