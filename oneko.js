@@ -249,12 +249,17 @@
         nekoEl.style.top = `${nekoPosY - 16}px`;
       };
 
-      const mouseup = () => {
+      const mouseup = (e) => {
         grabbing = false;
         nudge = true;
         resetIdleAnimation();
         window.removeEventListener("mousemove", mousemove);
         window.removeEventListener("mouseup", mouseup);
+        // Refresh sleeping position when dragged away
+        mousePosX = e.clientX;
+        sleepSaved = false;
+        forceSleep = false;
+        sleep();
       };
 
       window.addEventListener("mousemove", mousemove);
