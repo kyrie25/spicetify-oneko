@@ -11,6 +11,7 @@
     idleAnimation = null,
     idleAnimationFrame = 0,
     forceSleep = false,
+    sleepSaved = true,
     grabbing = false,
     grabStop = true,
     nudge = false,
@@ -124,10 +125,22 @@
     const progressBarTop = progressBar.getBoundingClientRect().top;
     const progressBarBottom = progressBar.getBoundingClientRect().bottom;
 
-    // Make the cat sleep on the progress bar
+    const progressBarWidth = progressBarRight - progressBarLeft;
     // Clamps position to closest point from mouse to bar
-    mousePosX = Math.min(Math.max(progressBarLeft + 16, mousePosX), progressBarRight - 16);
+    const normalizedSleepLocation = Math.min(Math.max(progressBarLeft + 16, mousePosX), progressBarRight - 16);
+    const percentSleepLocation = (normalizedSleepLocation - progressBarLeft) / progressBarWidth;
+    // Make the cat sleep on the progress bar
+    // if there is a saved location, go there
+    mousePosX = sleepSaved ?
+      progressBarLeft + (parseLocalStorage("sleepPos", 0) * progressBarWidth) :
+      normalizedSleepLocation;
     mousePosY = progressBarTop - 8;
+
+    //save sleeping location
+    if (!sleepSaved) {
+      localStorage.setItem("oneko:sleepPos", percentSleepLocation);
+      sleepSaved = true;
+    }
 
     // Get the position of the remaining time
     const remainingTime = document.querySelector(".main-playbackBarRemainingTime-container");
@@ -255,7 +268,11 @@
       nekoEl.style.filter = kuroNeko ? "invert(100%)" : "none";
     });
 
-    nekoEl.addEventListener("dblclick", sleep);
+    // on new sleep, reset saved position
+    nekoEl.addEventListener("dblclick", () => {
+      sleepSaved = false;
+      sleep()
+    });
 
     window.onekoInterval = setInterval(frame, 100);
   }
