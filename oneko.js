@@ -153,20 +153,9 @@
     const elapsedTimeRight = elapsedTime.getBoundingClientRect().right;
     const elapsedTimeLeft = elapsedTime.getBoundingClientRect().left;
 
-    // If the remaining time is on top right of the progress bar, make the cat sleep to the a little bit to the left of the remaining time
-    // Theme compatibility
-    if (remainingTimeLeft < progressBarRight && remainingTimeTop < progressBarBottom && progressBarTop - remainingTimeBottom < 32) {
-      mousePosX = remainingTimeLeft - 16;
-
-      // Comfy special case
-      if (Spicetify.Config.current_theme === "Comfy") {
-        mousePosY = progressBarTop - 14;
-      }
-
-      // Move the cat to the left of elapsed time if it is too close to the remaining time (Nord theme)
-      if (remainingTimeLeft - elapsedTimeRight < 32) {
-        mousePosX = elapsedTimeLeft - 16;
-      }
+    // Comfy special case
+    if (Spicetify.Config.current_theme === "Comfy") {
+      mousePosY = progressBarTop - 14;
     }
   }
 
