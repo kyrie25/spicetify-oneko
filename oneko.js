@@ -120,11 +120,13 @@
     // Get the far right and top of the progress bar
     const progressBar = document.querySelector(".main-nowPlayingBar-center .playback-progressbar");
     const progressBarRight = progressBar.getBoundingClientRect().right;
+    const progressBarLeft = progressBar.getBoundingClientRect().left;
     const progressBarTop = progressBar.getBoundingClientRect().top;
     const progressBarBottom = progressBar.getBoundingClientRect().bottom;
 
     // Make the cat sleep on the progress bar
-    mousePosX = progressBarRight - 16;
+    // Clamps position to closest point from mouse to bar
+    mousePosX = Math.min(Math.max(progressBarLeft + 16, mousePosX), progressBarRight - 16);
     mousePosY = progressBarTop - 8;
 
     // Get the position of the remaining time
