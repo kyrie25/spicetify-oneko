@@ -3,5 +3,6 @@
   "description": "cat follow mouse (real)",
   "preview": "assets/preview/preview.gif",
   "main": "oneko.js",
-  "readme": "README.md"
+  "readme": "README.md",
+  "tags": ["fun", "pet", "companion", "cat", "dog"]
 }
