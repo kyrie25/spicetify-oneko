@@ -11,6 +11,7 @@
     idleAnimation = null,
     idleAnimationFrame = 0,
     forceSleep = false,
+    sleepSaved = true,
     grabbing = false,
     grabStop = true,
     nudge = false,
@@ -120,12 +121,26 @@
     // Get the far right and top of the progress bar
     const progressBar = document.querySelector(".main-nowPlayingBar-center .playback-progressbar");
     const progressBarRight = progressBar.getBoundingClientRect().right;
+    const progressBarLeft = progressBar.getBoundingClientRect().left;
     const progressBarTop = progressBar.getBoundingClientRect().top;
     const progressBarBottom = progressBar.getBoundingClientRect().bottom;
 
+    const progressBarWidth = progressBarRight - progressBarLeft;
+    // Clamps position to closest point from mouse to bar
+    const normalizedSleepLocation = Math.min(Math.max(progressBarLeft + 16, mousePosX), progressBarRight - 16);
+    const percentSleepLocation = (normalizedSleepLocation - progressBarLeft) / progressBarWidth;
     // Make the cat sleep on the progress bar
-    mousePosX = progressBarRight - 16;
+    // if there is a saved location, go there
+    mousePosX = sleepSaved ?
+      progressBarLeft + (parseLocalStorage("sleepPos", 0) * progressBarWidth) :
+      normalizedSleepLocation;
     mousePosY = progressBarTop - 8;
+
+    //save sleeping location
+    if (!sleepSaved) {
+      localStorage.setItem("oneko:sleepPos", percentSleepLocation);
+      sleepSaved = true;
+    }
 
     // Get the position of the remaining time
     const remainingTime = document.querySelector(".main-playbackBarRemainingTime-container");
@@ -138,20 +153,9 @@
     const elapsedTimeRight = elapsedTime.getBoundingClientRect().right;
     const elapsedTimeLeft = elapsedTime.getBoundingClientRect().left;
 
-    // If the remaining time is on top right of the progress bar, make the cat sleep to the a little bit to the left of the remaining time
-    // Theme compatibility
-    if (remainingTimeLeft < progressBarRight && remainingTimeTop < progressBarBottom && progressBarTop - remainingTimeBottom < 32) {
-      mousePosX = remainingTimeLeft - 16;
-
-      // Comfy special case
-      if (Spicetify.Config.current_theme === "Comfy") {
-        mousePosY = progressBarTop - 14;
-      }
-
-      // Move the cat to the left of elapsed time if it is too close to the remaining time (Nord theme)
-      if (remainingTimeLeft - elapsedTimeRight < 32) {
-        mousePosX = elapsedTimeLeft - 16;
-      }
+    // Comfy special case
+    if (Spicetify.Config.current_theme === "Comfy") {
+      mousePosY = progressBarTop - 14;
     }
   }
 
@@ -234,12 +238,19 @@
         nekoEl.style.top = `${nekoPosY - 16}px`;
       };
 
-      const mouseup = () => {
+      const mouseup = (e) => {
         grabbing = false;
         nudge = true;
         resetIdleAnimation();
         window.removeEventListener("mousemove", mousemove);
         window.removeEventListener("mouseup", mouseup);
+        // Refresh sleeping position when dragged away
+        if (forceSleep) {
+          mousePosX = e.clientX;
+          sleepSaved = false;
+          forceSleep = false;
+          sleep();
+        }
       };
 
       window.addEventListener("mousemove", mousemove);
@@ -253,7 +264,11 @@
       nekoEl.style.filter = kuroNeko ? "invert(100%)" : "none";
     });
 
-    nekoEl.addEventListener("dblclick", sleep);
+    // on new sleep, reset saved position
+    nekoEl.addEventListener("dblclick", () => {
+      sleepSaved = false;
+      sleep()
+    });
 
     window.onekoInterval = setInterval(frame, 100);
   }
